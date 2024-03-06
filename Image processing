@@ -1,21 +1,110 @@
+""" FINAL PATH DETECTION """
+
 import cv2
+import numpy as np
 
-# Open file as both color and graysacle
-fn = 'IMG_5316.jpeg' 
-color = cv2.imread(fn, cv2.IMREAD_COLOR)
-blurred = cv2.GaussianBlur(color, (9, 9), 0)
-# Resize
-blurred = cv2.resize(blurred, (0,0), fx=0.5, fy=.5) 
+fn = 'IMG_5316.jpeg'
 
-(b, g, r) = cv2.split(blurred)
-ret2, thresh2 = cv2.threshold(b, 230, 255, cv2.THRESH_BINARY)
-ret3, thresh3 = cv2.threshold(g, 255, 255, cv2.THRESH_BINARY)
-ret4, thresh4 = cv2.threshold(r, 255, 255, cv2.THRESH_BINARY)
-bgr_thresh = cv2.merge((thresh2, thresh3, thresh4))
-(T, thresh) = cv2.threshold(blurred, 170, 255, cv2.THRESH_BINARY)
-cv2.imshow("Threshold Binary", thresh)
+def getYellow(fn):
+    # Open file
+    color = cv2.imread(fn, cv2.IMREAD_COLOR)
+    blurred = cv2.GaussianBlur(color, (3, 3), 0)
+    # Resize
+    blurred = cv2.resize(blurred, (0,0), fx=2, fy=2) 
 
-cv2.imshow("Threshold Binary", bgr_thresh)
+
+    ## Convert to HSV
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    ## Mask of green (36,25,25) ~ (86, 255,255)
+    # mask = cv2.inRange(hsv, (36, 25, 25), (86, 255,255))
+    mask = cv2.inRange(hsv, (15, 25, 25), (50, 255,255))
+
+    ## Slice the Blue
+    imask = mask>0
+    blue = np.zeros_like(blurred, np.uint8)
+    blue[imask] = blurred[imask]
+
+    gray = cv2.cvtColor(blue, cv2.COLOR_BGR2GRAY) 
+
+    (T, thresh) = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+    return (thresh)
+
+def getBlue(fn):
+    color = cv2.imread(fn, cv2.IMREAD_COLOR)
+    blurred = cv2.GaussianBlur(color, (9, 9), 0)
+    # Resize
+    blurred = cv2.resize(blurred, (0,0), fx=0.5, fy=.5) 
+
+
+    ## Convert to HSV
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    ## Mask of green (36,25,25) ~ (86, 255,255)
+    # mask = cv2.inRange(hsv, (36, 25, 25), (86, 255,255))
+    mask = cv2.inRange(hsv, (90, 25, 25), (130, 255,255))
+
+    ## Slice the Blue
+    imask = mask>0""" FINAL PATH DETECTION """
+
+import cv2
+import numpy as np
+
+fn = 'IMG_5316.jpeg'
+
+def getYellow(fn):
+    # Open file
+    color = cv2.imread(fn, cv2.IMREAD_COLOR)
+    blurred = cv2.GaussianBlur(color, (3, 3), 0)
+    # Resize
+    blurred = cv2.resize(blurred, (0,0), fx=2, fy=2) 
+
+
+    ## Convert to HSV
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    ## Mask of green (36,25,25) ~ (86, 255,255)
+    # mask = cv2.inRange(hsv, (36, 25, 25), (86, 255,255))
+    mask = cv2.inRange(hsv, (15, 25, 25), (50, 255,255))
+
+    ## Slice the Blue
+    imask = mask>0
+    blue = np.zeros_like(blurred, np.uint8)
+    blue[imask] = blurred[imask]
+
+    gray = cv2.cvtColor(blue, cv2.COLOR_BGR2GRAY) 
+
+    (T, thresh) = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+    return (thresh)
+
+def getBlue(fn):
+    color = cv2.imread(fn, cv2.IMREAD_COLOR)
+    blurred = cv2.GaussianBlur(color, (9, 9), 0)
+    # Resize
+    blurred = cv2.resize(blurred, (0,0), fx=0.5, fy=.5) 
+
+
+    ## Convert to HSV
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    blue = np.zeros_like(blurred, np.uint8)
+    blue[imask] = blurred[imask]
+
+    gray = cv2.cvtColor(blue, cv2.COLOR_BGR2GRAY) 
+
+    (T, thresh) = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    return thresh
+
+cv2.imshow("Threshold Binary", getYellow(fn))
+cv2.imshow("Threshold Binary", getBlue(fn))
+
+"""
+TO DO:
+1) get robot blue line image
+2) compare white pixels of getyellow and getblue
+3) choose the correct one
+4) implement into robot
+
+"""
 
 # waiting for key event
 cv2.waitKey(0)
